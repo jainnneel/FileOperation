@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="ISO-8859-1">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<style type="text/css">
+.hide {
+	display: none;
+}
+</style>
+<title>Insert title here</title>
+</head>
+<body>
+	<div id="signupmobile">
+		<h4 id="reg" class="hide">Already register</h4>
+		<h2>Register with Mobile</h2>
+		<h4 id="errors" class="hide">Fill all the fields</h4>
+		<form th:action="@{signupwithMobile}" th:method="post"
+			th:object="${UserData}" id="signupFormmobile">
+			<br> Name: <input th:type="text" th:field="*{name}" name="name"
+				id="namea"> <br> <br> 
+				Mobile: <input
+				th:type="text" th:field="*{mobile}" name="mobile" id="mobile"
+				onblur="checkuserMobile()">
+				<h4 id="mmessage"></h4>
+				<br> 
+				Email: <input
+				th:type="email" th:field="*{email}" name="email" id="email"
+				onblur="checkuserEmail()">
+			<h4 id="emessage"></h4>
+			
+			Password: <input th:type="text" th:field="*{pass}" name="pass"
+				id="passa"> <br> <br>
+			
+			<button type="submit" id="signup" >Sign-Up</button>
+		</form>
+	</div>
+
+	<div id="loginform">
+		<h2>Login</h2>
+		<div th:if="${param.error}">Invalid username or password.</div>
+		<div th:if="${param.expired}">Invalid username or password.</div>
+		<div th:if="${param.logout}">You have been logged out.</div>
+		<form action="/login" method="post">
+			Email/MobileNo.:<input type="text" name="username"> Password:<input
+				type="text" name="password"> <input type="checkbox"
+				name="remember-me"> Remember me?<br> <br>
+			<button type="submit">Login</button>
+		</form>
+	</div>
+
+		
+
+
+
+	<script type="text/javascript">
+		$('#signupFormmobile')
+				.submit(function(event) {
+							event.preventDefault();
+							console.log("dasdsa")
+
+							var dataObject = {
+								name : $('#namea').val(),
+								mobile : $('#mobile').val(),
+								pass : $('#passa').val(),
+								email : $('#email').val()
+							};
+							console.log(dataObject)
+							$.ajax({url : "signupwithMobile",
+										type : 'POST',
+										contentType : "application/json",
+										data : JSON.stringify(dataObject),
+										success : function(response) {
+											console.log(response.status)
+											if (response.status == 'otpdone') {
+												window.location='verification';
+											}else if(response.status == 'registed'){
+												document.getElementById('reg').classList.remove('hide')
+											}else if(response.status == 'emaildone'){
+												window.location='emailverify';
+											}else{
+												document.getElementById('errors').classList.remove('hide')
+											}
+										}
+									});
+							return false;
+						});
+
+		
+		 
+		 const checkuserMobile = () => {
+        	 var mobile = $('#mobile').val();
+        	 if(mobile.length==0){
+        		 $("#mmessage").html("");
+        		
+        	 }else if(mobile.length<10 ){
+        		 $("#mmessage").html("enter valid number");
+        	 }else{
+        		 console.log(mobile)
+     		 $.ajax({
+     			type : "POST",
+     			contentType : "application/json",
+     			url :  "checkemobile",
+     			data : JSON.stringify(mobile),
+     			dataType : 'json',
+     			success : function(data) {
+     				if(data.status=="nottt"){
+     					$("#mmessage").html("already exist");
+     					$("#signup").prop("disabled", true);
+     				}else{
+     					$("#mmessage").html("");
+     					$("#signup").prop("disabled", false);
+     				}
+     			}
+     		});
+        	 }
+         } 
+		 
+		 const checkuserEmail = () => {
+        	 var email = $('#email').val();
+        	 if(email.length==0){
+        		 $("#emessage").html("");
+        	 }else if(email.length<6){
+        		 $("#emessage").html("enter valid email");
+        	 }else{
+        		 console.log(email)
+     		 $.ajax({
+     			type : "POST",
+     			contentType : "application/json",
+     			url :  "checkeemail",
+     			data : JSON.stringify(email),
+     			dataType : 'json',
+     			success : function(data) {
+     				if(data.status=="nottt"){
+     					$("#emessage").html("already exist");
+     					$("#signup").prop("disabled", true);
+     				}else{
+     					$("#signup").prop("disabled", false);
+     					$("#emessage").html("");
+     				}
+     			}
+     		});
+        	 }
+         } 
+		 
+	</script>
+
+</body>
+</html>

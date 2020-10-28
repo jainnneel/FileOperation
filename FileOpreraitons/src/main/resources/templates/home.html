@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="ISO-8859-1">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<title>Insert title here</title>
+<style type="text/css">
+.hide{
+display: none;
+}
+</style>
+</head>
+<body>
+        <div th:if="${expire==false}">Your Free Trial expireddddddd</div>
+	<div sec:authorize="!isAuthenticated()">
+		<a th:href="@{/SignupAndLogin}">Try Free Tier(without credit card)</a>
+		<br>
+		<a th:href="@{/SignupAndLogin}">Login</a>
+	</div>
+	<div sec:authorize="isAuthenticated()">
+	<hr>
+		<a th:href="@{logout}">Logout</a>
+	</div>
+	
+	<div th:if="${user!=null}">
+		<h3  th:text="${user.name}"></h3>
+		<h3 th:text="${user.mobile}"></h3>
+	</div>
+	<div class="hide" id="unauth">
+		<a th:href="@{/SignupAndLogin}">Login</a>
+		<br>
+		<a th:href="@{/SignupAndLogin}">Use Free Tier(Without Credit card)</a>
+	</div>
+	
+	<hr>
+	<h3>--------Image Resize--------</h3>
+	<form action="/proccessing/uploadForCompress" enctype="multipart/form-data"
+		method="post" id="resizeForm">
+		<div id="resizeprocess"></div>
+		<br> UploadImage: <input type="file" name="image"> <br>
+		<button type="submit" th:attrappend="disabled=${expire==false}?'disabled':''">Upload</button>
+		<br>
+		<div id="resize" class="hide">
+			<a  id="resizeLink" href="">Download Compressed Image </a>
+		</div>
+		
+	</form>
+	<hr>
+	<h3>-------- File Converter--------</h3>
+	<form action="/proccessing/uploadForFileConvert" enctype="multipart/form-data"
+		method="post" id="fileConvert">
+		<div id="fileprocess"></div>
+		To:<select name="to" onchange="change('file')" id="selectFileEle">
+			<option disabled="disabled" selected="selected">---Select---</option>
+			<option value="doc">Word</option>
+			<option value="pdf">pdf</option>
+		</select> <br> <br> UploadImage: <input type="file" name="image"
+			id="fileInput" accept=""> <br> <br>
+		<button type="submit" th:attrappend="disabled=${expire==false}?'disabled':''">Upload</button>
+		<br>
+		<div id="fileconvert" class="hide">
+			<a  id="fileLink" href="">Download Converted File </a>
+		</div>
+	</form>
+	<hr>
+	<h3>--------Image Converter--------</h3>
+	<form action="/proccessing/uploadForImageConvert" enctype="multipart/form-data"
+		method="post" id="imageConvert">
+		<div id="imageprocess"></div>
+		To:<select name="to" onchange="change('image')" id="selectImgEle">
+			<option disabled="disabled" selected="selected">---Select---</option>
+			<option value="jpg">jpg</option>
+			<option value="png">png</option>
+			<option value="jpeg">jpeg</option>
+		</select> <br> <br> UploadImage: <input type="file" name="image"
+			id="imgInput" accept=".jpg"> <br> <br>
+
+		<button type="submit" th:attrappend="disabled=${expire==false}?'disabled':''">Upload</button>
+		<div id="imageconvert" class="hide">
+			<a  id="imageLink" href="">Download Converted Image </a>
+		</div>
+	</form>
+	<hr>
+	<hr>
+	<h3>--------Add WaterMark--------</h3>
+	<form action="/proccessing/uploadForAddWaterMark" enctype="multipart/form-data"
+		method="post" id="addwaterMark">
+		<div id="waterprocess"></div>
+		<br> WaterMarkImage: <input type="file" name="waterMark"
+			id="imgInput" accept=""> <br> <br> MainImage: <input
+			type="file" name="mainImage" id="imgInput" accept=""> <br>
+		<br>
+
+		<button type="submit" th:attrappend="disabled=${expire==false}?'disabled':''">Upload</button>
+		<div id="waterMark" class="hide">
+			<a  id="waterLink" href="">Download Image with Watermark </a>
+		</div>
+	</form>
+	<hr>
+</body>
+<script type="text/javascript">
+$('#resizeForm').submit(function(event) {
+    event.preventDefault();
+	console.log("dasdsa")
+	/* alert("Dsd") */
+	
+	
+    // Calling AJAX
+    $.ajax({
+        url : $(this).attr('action'),
+        type : $(this).attr('method'),
+        data : new FormData(this),
+        contentType : false,
+        cache : false,
+        processData : false,
+        success : function(response) {
+           	console.log("DAs")
+        	if(response.status=='done'){
+        	   document.getElementById("resize").classList.remove('hide')
+        	   $('#resizeLink').attr('href',response.link)
+        	   }else{
+          		  alert("login or signup first")
+        	   }
+            	  $('#resizeprocess').hide()
+        },
+        beforeSend : function() {
+            $('#resizeprocess').html('<h1>Resizing......</h1>');
+        }
+    });
+
+    return false;
+});
+
+$('#fileConvert').submit(function(event) {
+    event.preventDefault();
+	console.log("dasdsa")
+	/* alert("Dsd") */
+    // Calling AJAX
+    $.ajax({
+        url : $(this).attr('action'),
+        type : $(this).attr('method'),
+        data : new FormData(this),
+        contentType : false,
+        cache : false,
+        processData : false,
+        success : function(response) {
+           	console.log("DAs")
+           	if(response.status=='done'){
+         	  document.getElementById("fileconvert").classList.remove('hide');	
+         	   $('#fileLink').attr('href',response.link)
+         	   }else{
+         		  alert("login or signup first")         	   }
+      	  $('#fileprocess').hide()
+
+        },
+        beforeSend : function() {
+            $('#fileprocess').html('<h1>Converting......</h1>');
+        }
+    });
+
+    return false;
+});
+
+$('#imageConvert').submit(function(event) {
+    event.preventDefault();
+	console.log("dasdsa")
+	/* alert("Dsd") */
+    // Calling AJAX
+    $.ajax({
+        url : $(this).attr('action'),
+        type : $(this).attr('method'),
+        data : new FormData(this),
+        contentType : false,
+        cache : false,
+        processData : false,
+        success : function(response) {
+        	if(response.status=='done'){
+         	  document.getElementById("imageconvert").classList.remove('hide');	
+         	   $('#imageLink').attr('href',response.link)
+         	   }else{
+         		  alert("login or signup first")         	   };
+         	  $('#imageprocess').hide()
+        },
+        beforeSend : function() {
+            $('#imageprocess').html('<h1>Converting......</h1>');
+        }
+    });
+
+    return false;
+});
+
+$('#addwaterMark').submit(function(event) {
+    event.preventDefault();
+	console.log("dasdsa")
+	/* alert("Dsd") */
+    // Calling AJAX
+    $.ajax({
+        url : $(this).attr('action'),
+        type : $(this).attr('method'),
+        data : new FormData(this),
+        contentType : false,
+        cache : false,
+        processData : false,
+        success : function(response) {
+           	console.log("DAs")
+           	if(response.status=='done'){
+           	 document.getElementById("waterMark").classList.remove('hide');	
+         	   $('#waterLink').attr('href',response.link)
+         	   }else{
+         		  alert("login or signup first")         	   }
+      	  $('#waterprocess').hide()
+
+        },
+        beforeSend : function() {
+            $('#waterprocess').html('<h1>Processing......</h1>');
+        }
+    });
+
+    return false;
+});
+
+	const change = (type) =>  {
+		
+		if(type=='image'){
+		    var toElement = $("#selectImgEle").val();
+		    if(toElement=='jpg')
+		    {   console.log(toElement)
+		    	$('#imgInput').attr('accept','.jpeg,.png');}
+		    else if(toElement=='png') 
+		    {
+		    	console.log(toElement)
+		    	$('#imgInput').attr('accept','.jpeg,.jpg')}
+		    else
+		    	{
+		    	console.log(toElement)
+		    	$('#imgInput').attr('accept','.jpg,.png')}
+		}else{
+		    var toElement = $('#selectFileEle').val();
+		    if(toElement=='doc'){
+		    	console.log(toElement)
+			   $('#fileInput').attr('accept','.pdf')}
+		    else{
+		    	console.log(toElement)
+			  $('#fileInput').attr('accept','.doc,.docx')}	
+		}
+	  }
+	
+	
+
+</script>
+</html>
