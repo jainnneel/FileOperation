@@ -2,6 +2,8 @@
 
 Features: 
 
+  AWS Lambda
+
   1. Compress Images
   
   2. Image Conversion 
